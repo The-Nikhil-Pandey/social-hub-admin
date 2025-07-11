@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { X, ExternalLink } from 'lucide-react';
+import { X } from 'lucide-react';
+import FileUpload from './FileUpload';
 
 interface EventModalProps {
   event: any;
@@ -20,7 +21,7 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
     location_url: '',
     event_link: '',
     event_tags: [] as string[],
-    image: '',
+    image: null as File | string | null,
   });
 
   useEffect(() => {
@@ -36,13 +37,17 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
         location_url: '',
         event_link: '',
         event_tags: [],
-        image: '',
+        image: null,
       });
     }
   }, [event]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // API HERE: File Upload API here: POST /api/upload-file
+    console.log('Event data with file:', formData);
+    
     onSave(formData);
   };
 
@@ -51,7 +56,7 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
   if (isViewMode && event) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800 rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center p-6 border-b border-gray-700">
             <h2 className="text-xl font-bold text-white">Event Details</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-white">
@@ -61,42 +66,20 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
 
           <div className="p-6">
             <div className="mb-6">
-              <img
-                src={event.image}
-                alt={event.title}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
+              {event.image && (
+                <img
+                  src={typeof event.image === 'string' ? event.image : URL.createObjectURL(event.image)}
+                  alt={event.title}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+              )}
               <h3 className="text-2xl font-bold text-white mb-2">{event.title}</h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {event.event_tags.map((tag: string, index: number) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-2">Date & Time</h4>
-                <p className="text-gray-300">{event.date} at {event.time}</p>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-2">Location</h4>
-                <p className="text-gray-300">{event.location}</p>
-                {event.location_url && (
-                  <a
-                    href={event.location_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-sm mt-1"
-                  >
-                    View on Map <ExternalLink size={14} />
-                  </a>
-                )}
+              <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                <span>{event.date}</span>
+                <span>•</span>
+                <span>{event.time}</span>
+                <span>•</span>
+                <span>{event.location}</span>
               </div>
             </div>
 
@@ -106,16 +89,32 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
             </div>
 
             {event.event_link && (
-              <div>
+              <div className="mb-6">
                 <h4 className="text-lg font-semibold text-white mb-2">Event Link</h4>
                 <a
                   href={event.event_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-orange-400 hover:text-orange-300 flex items-center gap-1"
+                  className="text-orange-400 hover:text-orange-300"
                 >
-                  {event.event_link} <ExternalLink size={16} />
+                  {event.event_link}
                 </a>
+              </div>
+            )}
+
+            {event.event_tags.length > 0 && (
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-2">Tags</h4>
+                <div className="flex flex-wrap gap-2">
+                  {event.event_tags.map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -159,6 +158,7 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
+              required
             />
           </div>
 
@@ -175,6 +175,7 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
                 required
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Time
@@ -198,6 +199,7 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
+              required
             />
           </div>
 
@@ -227,13 +229,14 @@ const EventModal = ({ event, isOpen, isViewMode, onClose, onSave }: EventModalPr
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Image URL
+              Event Image
             </label>
-            <input
-              type="url"
+            <FileUpload
               value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
+              onChange={(file) => setFormData({ ...formData, image: file })}
+              accept="image/*"
+              placeholder="Upload Event Image"
+              type="image"
             />
           </div>
 

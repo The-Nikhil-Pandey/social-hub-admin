@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, ExternalLink } from 'lucide-react';
+import FileUpload from './FileUpload';
 
 interface ToolModalProps {
   tool: any;
@@ -14,7 +15,7 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    image: '',
+    image: null as File | string | null,
     link: '',
   });
 
@@ -25,7 +26,7 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
       setFormData({
         title: '',
         description: '',
-        image: '',
+        image: null,
         link: '',
       });
     }
@@ -33,6 +34,10 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // API HERE: File Upload API here: POST /api/upload-file
+    console.log('Tool data with file:', formData);
+    
     onSave(formData);
   };
 
@@ -51,11 +56,13 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
 
           <div className="p-6">
             <div className="mb-6">
-              <img
-                src={tool.image}
-                alt={tool.title}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
+              {tool.image && (
+                <img
+                  src={typeof tool.image === 'string' ? tool.image : URL.createObjectURL(tool.image)}
+                  alt={tool.title}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+              )}
               <h3 className="text-2xl font-bold text-white mb-4">{tool.title}</h3>
             </div>
 
@@ -124,13 +131,14 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Image URL
+              Tool Image
             </label>
-            <input
-              type="url"
+            <FileUpload
               value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
+              onChange={(file) => setFormData({ ...formData, image: file })}
+              accept="image/*"
+              placeholder="Upload Tool Image"
+              type="image"
             />
           </div>
 

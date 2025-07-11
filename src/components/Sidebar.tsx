@@ -1,6 +1,6 @@
-
 import { NavLink } from 'react-router-dom';
 import { 
+  BarChart3,
   Users, 
   Tags, 
   FileText, 
@@ -20,6 +20,7 @@ interface SidebarProps {
 
 const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
   const menuItems = [
+    { icon: BarChart3, label: 'Dashboard', path: '/' },
     { icon: Users, label: 'Users', path: '/users' },
     { icon: Tags, label: 'Tags', path: '/tags' },
     { icon: FileText, label: 'Posts', path: '/posts' },
