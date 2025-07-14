@@ -1,7 +1,15 @@
-
-import { Bell, Moon, Sun, Menu, User, Settings, LogOut, Key } from 'lucide-react';
-import { useState } from 'react';
-import ChangePasswordModal from './ChangePasswordModal';
+import {
+  Bell,
+  Moon,
+  Sun,
+  Menu,
+  User,
+  Settings,
+  LogOut,
+  Key,
+} from "lucide-react";
+import { useState } from "react";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 interface TopBarProps {
   onToggleSidebar: () => void;
@@ -29,7 +37,7 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
+            {/* <button
               onClick={() => setIsDarkMode(!isDarkMode)}
               className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700"
             >
@@ -39,7 +47,7 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
             <button className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700 relative">
               <Bell size={20} />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full"></span>
-            </button>
+            </button> */}
 
             <div className="relative">
               <button
@@ -65,10 +73,10 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
                       <Key size={16} />
                       Change Password
                     </button>
-                    <button className="flex items-center gap-3 w-full px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                    {/* <button className="flex items-center gap-3 w-full px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
                       <Settings size={16} />
                       Settings
-                    </button>
+                    </button> */}
                     <hr className="border-gray-700 my-2" />
                     <button className="flex items-center gap-3 w-full px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors">
                       <LogOut size={16} />
@@ -82,9 +90,9 @@ const TopBar = ({ onToggleSidebar }: TopBarProps) => {
         </div>
       </header>
 
-      <ChangePasswordModal 
-        isOpen={showChangePassword} 
-        onClose={() => setShowChangePassword(false)} 
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
       />
     </>
   );
