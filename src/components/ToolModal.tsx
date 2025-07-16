@@ -1,7 +1,6 @@
-
-import { useState, useEffect } from 'react';
-import { X, ExternalLink } from 'lucide-react';
-import FileUpload from './FileUpload';
+import { useState, useEffect } from "react";
+import { X, ExternalLink } from "lucide-react";
+import FileUpload from "./FileUpload";
 
 interface ToolModalProps {
   tool: any;
@@ -11,33 +10,46 @@ interface ToolModalProps {
   onSave: (toolData: any) => void;
 }
 
-const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps) => {
+const ToolModal = ({
+  tool,
+  isOpen,
+  isViewMode,
+  onClose,
+  onSave,
+}: ToolModalProps) => {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     image: null as File | string | null,
-    link: '',
+    link: "",
   });
+
+  console.log("ToolModal Props:", tool);
 
   useEffect(() => {
     if (tool) {
-      setFormData(tool);
+      setFormData({
+        title: tool[0].title || "",
+        description: tool[0].description || "",
+        image: tool[0].img_url || null,
+        link: tool[0].link || "",
+      });
     } else {
       setFormData({
-        title: '',
-        description: '',
+        title: "",
+        description: "",
         image: null,
-        link: '',
+        link: "",
       });
     }
   }, [tool]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // API HERE: File Upload API here: POST /api/upload-file
-    console.log('Tool data with file:', formData);
-    
+    console.log("Tool data with file:", formData);
+
     onSave(formData);
   };
 
@@ -49,38 +61,51 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
         <div className="bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center p-6 border-b border-gray-700">
             <h2 className="text-xl font-bold text-white">Tool Details</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white"
+            >
               <X size={20} />
             </button>
           </div>
 
           <div className="p-6">
             <div className="mb-6">
-              {tool.image && (
+              {tool[0].img_url && (
                 <img
-                  src={typeof tool.image === 'string' ? tool.image : URL.createObjectURL(tool.image)}
-                  alt={tool.title}
+                  src={`${import.meta.env.VITE_API_BASE_IMAGE_URL}/uploads/${
+                    tool[0].img_url
+                  }`}
+                  alt={tool[0].title}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
               )}
-              <h3 className="text-2xl font-bold text-white mb-4">{tool.title}</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">
+                {tool[0].title}
+              </h3>
             </div>
 
             <div className="mb-6">
-              <h4 className="text-lg font-semibold text-white mb-2">Description</h4>
-              <p className="text-gray-300 leading-relaxed">{tool.description}</p>
+              <h4 className="text-lg font-semibold text-white mb-2">
+                Description
+              </h4>
+              <p className="text-gray-300 leading-relaxed">
+                {tool[0].description}
+              </p>
             </div>
 
-            {tool.link && (
+            {tool[0].link && (
               <div>
-                <h4 className="text-lg font-semibold text-white mb-2">Download Link</h4>
+                <h4 className="text-lg font-semibold text-white mb-2">
+                  Download Link
+                </h4>
                 <a
-                  href={tool.link}
+                  href={tool[0].link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-orange-400 hover:text-orange-300 flex items-center gap-1"
                 >
-                  {tool.link} <ExternalLink size={16} />
+                  {tool[0].link} <ExternalLink size={16} />
                 </a>
               </div>
             )}
@@ -95,7 +120,7 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
       <div className="bg-gray-800 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-gray-700">
           <h2 className="text-xl font-bold text-white">
-            {tool ? 'Edit Tool' : 'Add New Tool'}
+            {tool ? "Edit Tool" : "Add New Tool"}
           </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <X size={20} />
@@ -110,7 +135,9 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
             <input
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
               required
             />
@@ -122,7 +149,9 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
             </label>
             <textarea
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               rows={3}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
               required
@@ -149,7 +178,9 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
             <input
               type="url"
               value={formData.link}
-              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, link: e.target.value })
+              }
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
               required
             />
@@ -167,7 +198,7 @@ const ToolModal = ({ tool, isOpen, isViewMode, onClose, onSave }: ToolModalProps
               type="submit"
               className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
             >
-              {tool ? 'Update' : 'Create'} Tool
+              {tool ? "Update" : "Create"} Tool
             </button>
           </div>
         </form>

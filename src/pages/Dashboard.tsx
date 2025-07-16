@@ -8,8 +8,10 @@ import {
   AlertTriangle,
   TrendingUp,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   // API HERE: GET /api/summary/dashboard
   const dashboardData = {
     totalUsers: 1234,
@@ -48,19 +50,31 @@ const Dashboard = () => {
             Quick Actions
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2">
+            <button
+              className="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2"
+              onClick={() => navigate("/users")}
+            >
               <Users size={20} />
-              Add User
+              View Users
             </button>
-            <button className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2">
+            <button
+              className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2"
+              onClick={() => navigate("/events")}
+            >
               <Calendar size={20} />
-              Create Event
+              View Events
             </button>
-            <button className="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2">
+            <button
+              className="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2"
+              onClick={() => navigate("/courses")}
+            >
               <FileText size={20} />
-              Add Course
+              View Courses
             </button>
-            <button className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2">
+            <button
+              className="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg transition-colors flex items-center gap-2"
+              onClick={() => navigate("/reports")}
+            >
               <AlertTriangle size={20} />
               View Reports
             </button>
