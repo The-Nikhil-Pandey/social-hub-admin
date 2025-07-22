@@ -25,7 +25,7 @@ const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
     { icon: Tags, label: "Tags", path: "/tags" },
     { icon: FileText, label: "Posts", path: "/posts" },
     { icon: Calendar, label: "Events", path: "/events" },
-    { icon: FolderOpen, label: "Directories", path: "/directories" },
+    { icon: FolderOpen, label: "Suppliers", path: "/directories" },
     { icon: Wrench, label: "Tools", path: "/tools" },
     { icon: GraduationCap, label: "Courses", path: "/courses" },
     { icon: AlertTriangle, label: "Reports", path: "/reports" },

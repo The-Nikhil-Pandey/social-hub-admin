@@ -1,6 +1,12 @@
-
-import { useState, useEffect } from 'react';
-import { X, ChevronDown, ChevronRight, FileText, Plus, Trash2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  X,
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
 interface CourseModalProps {
   course: any;
@@ -8,35 +14,62 @@ interface CourseModalProps {
   isViewMode: boolean;
   onClose: () => void;
   onSave: (courseData: any) => void;
+  lessons?: any[];
+  topics?: any[];
+  onAddLesson?: (courseId: any) => void;
+  onEditLesson?: (lesson: any) => void;
+  onDeleteLesson?: (id: any) => void;
+  onAddTopic?: (lessonId: any) => void;
+  onEditTopic?: (topic: any) => void;
+  onDeleteTopic?: (id: any) => void;
 }
 
-const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModalProps) => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    thumbnail: '',
-    lessons: [] as any[],
+const CourseModal = ({
+  course,
+  isOpen,
+  isViewMode,
+  onClose,
+  onSave,
+}: CourseModalProps) => {
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    image: string | File;
+    lessons: any[];
+  }>({
+    title: "",
+    description: "",
+    image: "",
+    lessons: [],
   });
   const [expandedLessons, setExpandedLessons] = useState<string[]>([]);
 
   useEffect(() => {
     if (course) {
-      setFormData(course);
-      setExpandedLessons(course.lessons.map((l: any) => l.id));
+      const safeLessons = Array.isArray(course.lessons) ? course.lessons : [];
+      setFormData({
+        ...course,
+        image: course.image || "",
+        lessons: safeLessons.map((lesson: any) => ({
+          ...lesson,
+          topics: Array.isArray(lesson.topics) ? lesson.topics : [],
+        })),
+      });
+      setExpandedLessons(safeLessons.map((l: any) => l.id));
     } else {
       setFormData({
-        title: '',
-        description: '',
-        thumbnail: '',
+        title: "",
+        description: "",
+        image: "",
         lessons: [],
       });
     }
   }, [course]);
 
   const toggleLesson = (lessonId: string) => {
-    setExpandedLessons(prev =>
+    setExpandedLessons((prev) =>
       prev.includes(lessonId)
-        ? prev.filter(id => id !== lessonId)
+        ? prev.filter((id) => id !== lessonId)
         : [...prev, lessonId]
     );
   };
@@ -44,46 +77,51 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
   const addLesson = () => {
     const newLesson = {
       id: `l${Date.now()}`,
-      title: 'New Lesson',
-      topics: []
+      title: "New Lesson",
+      topics: [],
     };
     setFormData({
       ...formData,
-      lessons: [...formData.lessons, newLesson]
+      lessons: [...formData.lessons, newLesson],
     });
   };
 
   const addTopic = (lessonId: string) => {
     const newTopic = {
       id: `t${Date.now()}`,
-      title: 'New Topic',
-      ppt_file: ''
+      title: "New Topic",
+      ppt_file: "",
     };
     setFormData({
       ...formData,
-      lessons: formData.lessons.map(lesson =>
+      lessons: formData.lessons.map((lesson) =>
         lesson.id === lessonId
           ? { ...lesson, topics: [...lesson.topics, newTopic] }
           : lesson
-      )
+      ),
     });
   };
 
   const deleteLesson = (lessonId: string) => {
     setFormData({
       ...formData,
-      lessons: formData.lessons.filter(lesson => lesson.id !== lessonId)
+      lessons: formData.lessons.filter((lesson) => lesson.id !== lessonId),
     });
   };
 
   const deleteTopic = (lessonId: string, topicId: string) => {
     setFormData({
       ...formData,
-      lessons: formData.lessons.map(lesson =>
+      lessons: formData.lessons.map((lesson) =>
         lesson.id === lessonId
-          ? { ...lesson, topics: lesson.topics.filter((topic: any) => topic.id !== topicId) }
+          ? {
+              ...lesson,
+              topics: lesson.topics.filter(
+                (topic: any) => topic.id !== topicId
+              ),
+            }
           : lesson
-      )
+      ),
     });
   };
 
@@ -100,7 +138,10 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
         <div className="bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center p-6 border-b border-gray-700">
             <h2 className="text-xl font-bold text-white">Course Details</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white"
+            >
               <X size={20} />
             </button>
           </div>
@@ -108,48 +149,69 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
           <div className="p-6">
             <div className="mb-6">
               <img
-                src={course.thumbnail}
+                src={course.image}
                 alt={course.title}
                 className="w-full h-48 object-cover rounded-lg mb-4"
               />
-              <h3 className="text-2xl font-bold text-white mb-2">{course.title}</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">
+                {course.title}
+              </h3>
               <p className="text-gray-300 mb-4">{course.description}</p>
             </div>
 
             <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Lessons & Topics</h4>
+              <h4 className="text-lg font-semibold text-white mb-4">
+                Lessons & Topics
+              </h4>
               <div className="space-y-4">
-                {course.lessons.map((lesson: any) => (
-                  <div key={lesson.id} className="bg-gray-700 rounded-lg">
-                    <button
-                      onClick={() => toggleLesson(lesson.id)}
-                      className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-600 transition-colors rounded-lg"
-                    >
-                      <span className="text-white font-medium">{lesson.title}</span>
-                      {expandedLessons.includes(lesson.id) ? (
-                        <ChevronDown size={20} className="text-gray-400" />
-                      ) : (
-                        <ChevronRight size={20} className="text-gray-400" />
-                      )}
-                    </button>
-                    
-                    {expandedLessons.includes(lesson.id) && (
-                      <div className="px-4 pb-4">
-                        <div className="space-y-2">
-                          {lesson.topics.map((topic: any) => (
-                            <div key={topic.id} className="flex items-center justify-between bg-gray-600 p-3 rounded">
-                              <div className="flex items-center gap-2">
-                                <FileText size={16} className="text-orange-400" />
-                                <span className="text-white">{topic.title}</span>
+                {(Array.isArray(course.lessons) ? course.lessons : []).map(
+                  (lesson: any) => (
+                    <div key={lesson.id} className="bg-gray-700 rounded-lg">
+                      <button
+                        onClick={() => toggleLesson(lesson.id)}
+                        className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-600 transition-colors rounded-lg"
+                      >
+                        <span className="text-white font-medium">
+                          {lesson.title}
+                        </span>
+                        {expandedLessons.includes(lesson.id) ? (
+                          <ChevronDown size={20} className="text-gray-400" />
+                        ) : (
+                          <ChevronRight size={20} className="text-gray-400" />
+                        )}
+                      </button>
+
+                      {expandedLessons.includes(lesson.id) && (
+                        <div className="px-4 pb-4">
+                          <div className="space-y-2">
+                            {(Array.isArray(lesson.topics)
+                              ? lesson.topics
+                              : []
+                            ).map((topic: any) => (
+                              <div
+                                key={topic.id}
+                                className="flex items-center justify-between bg-gray-600 p-3 rounded"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FileText
+                                    size={16}
+                                    className="text-orange-400"
+                                  />
+                                  <span className="text-white">
+                                    {topic.title}
+                                  </span>
+                                </div>
+                                <span className="text-sm text-gray-400">
+                                  {topic.ppt_file}
+                                </span>
                               </div>
-                              <span className="text-sm text-gray-400">{topic.ppt_file}</span>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </div>
@@ -163,7 +225,7 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
       <div className="bg-gray-800 rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-gray-700">
           <h2 className="text-xl font-bold text-white">
-            {course ? 'Edit Course' : 'Add New Course'}
+            {course ? "Edit Course" : "Add New Course"}
           </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white">
             <X size={20} />
@@ -178,7 +240,9 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
             <input
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
               required
             />
@@ -190,23 +254,40 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
             </label>
             <textarea
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               rows={3}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
               required
             />
           </div>
 
+          {/* Removed Thumbnail URL field, replaced with image upload */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Thumbnail URL
+              Course Image
             </label>
             <input
-              type="url"
-              value={formData.thumbnail}
-              onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                setFormData({ ...formData, image: file });
+              }}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-orange-500"
             />
+            {formData.image && (
+              <img
+                src={
+                  typeof formData.image === "string"
+                    ? formData.image
+                    : URL.createObjectURL(formData.image)
+                }
+                alt="Course Preview"
+                className="w-full h-32 object-cover rounded mt-2"
+              />
+            )}
           </div>
 
           <div>
@@ -259,28 +340,41 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
 
                   <div className="space-y-2">
                     {lesson.topics.map((topic: any, topicIndex: number) => (
-                      <div key={topic.id} className="flex items-center gap-2 bg-gray-600 p-2 rounded">
+                      <div
+                        key={topic.id}
+                        className="flex items-center gap-2 bg-gray-600 p-2 rounded"
+                      >
                         <input
                           type="text"
                           value={topic.title}
                           onChange={(e) => {
                             const updatedLessons = [...formData.lessons];
-                            updatedLessons[lessonIndex].topics[topicIndex].title = e.target.value;
-                            setFormData({ ...formData, lessons: updatedLessons });
+                            updatedLessons[lessonIndex].topics[
+                              topicIndex
+                            ].title = e.target.value;
+                            setFormData({
+                              ...formData,
+                              lessons: updatedLessons,
+                            });
                           }}
                           className="flex-1 px-2 py-1 bg-gray-500 border border-gray-400 rounded text-white text-sm focus:outline-none focus:border-orange-500"
                           placeholder="Topic title"
                         />
                         <input
-                          type="text"
-                          value={topic.ppt_file}
+                          type="file"
+                          accept=".ppt,.pptx"
                           onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
                             const updatedLessons = [...formData.lessons];
-                            updatedLessons[lessonIndex].topics[topicIndex].ppt_file = e.target.value;
-                            setFormData({ ...formData, lessons: updatedLessons });
+                            updatedLessons[lessonIndex].topics[
+                              topicIndex
+                            ].ppt_file = file;
+                            setFormData({
+                              ...formData,
+                              lessons: updatedLessons,
+                            });
                           }}
                           className="flex-1 px-2 py-1 bg-gray-500 border border-gray-400 rounded text-white text-sm focus:outline-none focus:border-orange-500"
-                          placeholder="PPT file name"
                         />
                         <button
                           type="button"
@@ -309,7 +403,7 @@ const CourseModal = ({ course, isOpen, isViewMode, onClose, onSave }: CourseModa
               type="submit"
               className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
             >
-              {course ? 'Update' : 'Create'} Course
+              {course ? "Update" : "Create"} Course
             </button>
           </div>
         </form>
